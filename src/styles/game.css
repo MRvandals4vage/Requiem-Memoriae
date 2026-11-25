@@ -639,3 +639,78 @@ body,
   font-style: italic;
   color: var(--ink-muted);
 }
+/* Window Dialogue Overlay */
+.window-dialogue-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: clamp(40px, 8vh, 80px);
+  pointer-events: none;
+}
+
+.window-dialogue-box {
+  pointer-events: auto;
+  max-width: min(80vw, 680px);
+  padding: clamp(18px, 3vw, 32px) clamp(20px, 4vw, 44px);
+  background-color: rgba(245, 242, 235, 0.96);
+  border: 1.5px solid var(--ink);
+  box-shadow:
+    0 4px 0 rgba(30, 28, 25, 0.8),
+    0 8px 28px rgba(30, 28, 25, 0.22);
+  text-align: center;
+}
+
+.window-dialogue-text {
+  margin: 0 0 20px;
+  font-family: var(--font-body);
+  font-size: clamp(17px, 1.6vw, 22px);
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.window-dialogue-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.explore-outside-btn {
+  background-color: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.explore-outside-btn:hover:not(:disabled) {
+  background-color: #2e2b26;
+  color: var(--paper);
+}
+
+.window-dismiss-btn {
+  opacity: 0.75;
+}
+
+/* Exterior scene stage — same aspect ratio as cabin */
+.artwork-stage--exterior {
+  width: min(100vw, calc(100vh * 1672 / 941));
+  height: min(100vh, calc(100vw * 941 / 1672));
+  aspect-ratio: 1672 / 941;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* Return-to-cabin hotspot label styling */
+.cabin-hotspot--return .cabin-hotspot-tooltip {
+  left: auto;
+  right: 0;
+  transform: translateX(0) translateY(4px);
+}
+
+.cabin-hotspot--return:hover .cabin-hotspot-tooltip,
+.cabin-hotspot--return:focus-visible .cabin-hotspot-tooltip {
+  transform: translateX(0) translateY(0);
+}

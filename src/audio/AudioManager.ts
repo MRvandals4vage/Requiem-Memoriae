@@ -3,12 +3,13 @@ import { ASSETS } from '../assets/assetMap';
 type BlockedListener = (blocked: boolean) => void;
 
 /**
- * Singleton manager for the opening soundtrack.
+ * Singleton manager for the opening soundtrack and ambient audio.
  * Kept outside React state/lifecycle so re-renders or StrictMode double-mounts
  * never create duplicate audio instances or restart playback.
  */
 class OpeningAudioManager {
   private audio: HTMLAudioElement | null = null;
+  private ambience: HTMLAudioElement | null = null;
   private shouldPlay = false;
   private unlockBound = false;
   private blocked = false;
@@ -109,7 +110,7 @@ class OpeningAudioManager {
   }
 
   /**
-   * Cleanly stops the opening soundtrack when entering the cabin.
+   * Cleanly stops the opening soundtrack.
    */
   public stopOpening(): void {
     this.shouldPlay = false;
@@ -121,8 +122,62 @@ class OpeningAudioManager {
   }
 
   /**
+   * Start outdoor ambience (crossfade from indoor).
+   */
+  public startOutdoorAmbience(): void {
+    if (!this.ambience) {
+      this.ambience = new Audio(ASSETS.outdoorAmbience);
+      this.ambience.loop = true;
+      this.ambience.preload = 'auto';
+      this.ambience.volume = 0;
+    }
+    if (this.ambience.paused) {
+      this.ambience.play().catch(() => {/* ignore */});
+    }
+    // Fade in
+    this.fadeVolume(this.ambience, 0, 0.18, 1200);
+  }
+
+  /**
+   * Stop outdoor ambience (fade out).
+   */
+  public stopOutdoorAmbience(): void {
+    if (!this.ambience) return;
+    this.fadeVolume(this.ambience, this.ambience.volume, 0, 800, () => {
+      if (this.ambience) {
+        this.ambience.pause();
+        this.ambience.currentTime = 0;
+      }
+    });
+  }
+
+  private fadeVolume(
+    el: HTMLAudioElement,
+    from: number,
+    to: number,
+    durationMs: number,
+    onDone?: () => void,
+  ): void {
+    const steps = 30;
+    const stepMs = durationMs / steps;
+    const delta = (to - from) / steps;
+    let current = from;
+    el.volume = Math.max(0, Math.min(1, from));
+    let count = 0;
+    const id = setInterval(() => {
+      count++;
+      current += delta;
+      el.volume = Math.max(0, Math.min(1, current));
+      if (count >= steps) {
+        clearInterval(id);
+        el.volume = Math.max(0, Math.min(1, to));
+        onDone?.();
+      }
+    }, stepMs);
+  }
+
+  /**
    * Audio hooks for parchment rustling when opening/closing the scroll.
-   * Ready to wire up when dedicated rustle SFX assets are added.
    */
   public playScrollOpen(): void {
     // Hook for low-volume parchment unroll sound without interrupting soundtrack.

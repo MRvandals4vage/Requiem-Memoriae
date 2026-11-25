@@ -6,6 +6,7 @@ import { TitleScreen } from './TitleScreen';
 import { CabinScene } from './CabinScene';
 import { ImageScene } from './ImageScene';
 import { BookshelfScene } from './BookshelfScene';
+import { ExteriorScene } from './ExteriorScene';
 import { ScrollHotspot } from './ScrollHotspot';
 
 interface SceneRendererProps {
@@ -13,9 +14,14 @@ interface SceneRendererProps {
   scrollOpen: boolean;
   onIntroEnded: () => void;
   onStartGame: () => void;
-  onSelectHotspot: (id: CabinHotspotId) => void;
+  onSelectHotspot: (id: Exclude<CabinHotspotId, 'WINDOW'>) => void;
   onBackToCabin: () => void;
   onOpenScroll: () => void;
+  onWindowClick: () => void;
+  windowActive: boolean;
+  showExplorePrompt: boolean;
+  onExploreOutside: () => void;
+  onDismissWindow: () => void;
 }
 
 export function SceneRenderer({
@@ -26,6 +32,11 @@ export function SceneRenderer({
   onSelectHotspot,
   onBackToCabin,
   onOpenScroll,
+  onWindowClick,
+  windowActive,
+  showExplorePrompt,
+  onExploreOutside,
+  onDismissWindow,
 }: SceneRendererProps) {
   return (
     <AnimatePresence mode="sync">
@@ -41,7 +52,12 @@ export function SceneRenderer({
         <CabinScene
           key="CABIN"
           onSelectHotspot={onSelectHotspot}
+          onWindowClick={onWindowClick}
           scrollOpen={scrollOpen}
+          windowActive={windowActive}
+          showExplorePrompt={showExplorePrompt}
+          onExploreOutside={onExploreOutside}
+          onDismissWindow={onDismissWindow}
         />
       )}
 
@@ -85,6 +101,10 @@ export function SceneRenderer({
 
       {scene === 'BOOKSHELF' && (
         <BookshelfScene key="BOOKSHELF" onBack={onBackToCabin} />
+      )}
+
+      {scene === 'CABIN_EXTERIOR' && (
+        <ExteriorScene key="CABIN_EXTERIOR" onBack={onBackToCabin} />
       )}
     </AnimatePresence>
   );

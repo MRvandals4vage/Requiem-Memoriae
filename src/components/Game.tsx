@@ -11,6 +11,10 @@ export function Game() {
   const [audioBlocked, setAudioBlocked] = useState(false);
   const viewportRef = useRef<HTMLDivElement | null>(null);
 
+  // Window interaction state
+  const [windowActive, setWindowActive] = useState(false);
+  const [showExplorePrompt, setShowExplorePrompt] = useState(false);
+
   const {
     scrollOpen,
     openScroll,
@@ -39,17 +43,42 @@ export function Game() {
   }, []);
 
   const handleStartGame = useCallback(() => {
-    // Keep the soundtrack active across all scenes; also unlock if autoplay was blocked.
     audioManager.startOpening();
     setScene('CABIN');
   }, []);
 
-  const handleSelectHotspot = useCallback((id: CabinHotspotId) => {
-    setScene(id);
+  const handleSelectHotspot = useCallback((id: Exclude<CabinHotspotId, 'WINDOW'>) => {
+    setScene(id as SceneState);
   }, []);
 
   const handleBackToCabin = useCallback(() => {
+    // Returning from exterior — stop outdoor ambience
+    if (scene === 'CABIN_EXTERIOR') {
+      audioManager.stopOutdoorAmbience();
+    }
     setScene('CABIN');
+    setWindowActive(false);
+    setShowExplorePrompt(false);
+  }, [scene]);
+
+  // Window click: activate window dialogue
+  const handleWindowClick = useCallback(() => {
+    setWindowActive(true);
+    setShowExplorePrompt(true); // show both options immediately
+  }, []);
+
+  // Player clicks "Not Yet" / dismiss
+  const handleDismissWindow = useCallback(() => {
+    setWindowActive(false);
+    setShowExplorePrompt(false);
+  }, []);
+
+  // Player clicks "Explore Outside"
+  const handleExploreOutside = useCallback(() => {
+    setWindowActive(false);
+    setShowExplorePrompt(false);
+    audioManager.startOutdoorAmbience();
+    setScene('CABIN_EXTERIOR');
   }, []);
 
   const enterFullscreen = useCallback(async () => {
@@ -73,6 +102,11 @@ export function Game() {
           onSelectHotspot={handleSelectHotspot}
           onBackToCabin={handleBackToCabin}
           onOpenScroll={openScroll}
+          onWindowClick={handleWindowClick}
+          windowActive={windowActive}
+          showExplorePrompt={showExplorePrompt}
+          onExploreOutside={handleExploreOutside}
+          onDismissWindow={handleDismissWindow}
         />
 
         <ScrollOverlay isOpen={scrollOpen} onClose={closeScroll} />

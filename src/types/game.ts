@@ -5,9 +5,10 @@ export type SceneState =
   | 'DESK'
   | 'CHEST'
   | 'BEDSIDE'
-  | 'BOOKSHELF';
+  | 'BOOKSHELF'
+  | 'CABIN_EXTERIOR';
 
-export type CabinHotspotId = 'DESK' | 'CHEST' | 'BEDSIDE' | 'BOOKSHELF';
+export type CabinHotspotId = 'DESK' | 'CHEST' | 'BEDSIDE' | 'BOOKSHELF' | 'WINDOW';
 
 export interface HotspotConfig {
   id: CabinHotspotId;
